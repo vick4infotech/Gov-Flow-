@@ -1,0 +1,3 @@
+import {getRecords,configured} from '@/lib/db';
+import {isAuthorized} from '@/lib/auth';
+export async function GET(){if(!await isAuthorized())return new Response('Unauthorized',{status:401});if(!configured)return new Response('Database not configured',{status:503});const data=await getRecords();const fields=['id','title','detail','location','value','status','created_at'];const q=(v:unknown)=>'"'+String(v??'').replaceAll('"','""')+'"';const csv=[fields.join(','),...data.map(r=>fields.map(k=>q(r[k as keyof typeof r])).join(','))].join('\r\n');return new Response(csv,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="records.csv"'}})}
